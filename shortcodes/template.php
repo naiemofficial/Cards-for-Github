@@ -20,9 +20,6 @@ function fn_github_card_template($atts)
     $exploded_repo = explode('/', trim($repo, '/'));
     $username = isset($exploded_repo[0]) ? $exploded_repo[0] : $repo;
     $reponame = isset($exploded_repo[1]) ? $exploded_repo[1] : '';
-    if(!empty($heading)){
-        $reponame = $heading;
-    }
     $repolink = "https://github.com/" . $username . "/" . $reponame;
 
     // Card 
@@ -110,7 +107,7 @@ function fn_github_card_template($atts)
                 <div class="github-card-title">
                     <h3 class="repo-title <?php echo $is_skeleton ? $skeleton_class : ''; ?>">
                         <a href="<?php echo $repolink; ?>" target="_blank" rel="noopener noreferrer">
-                            <?php if ($show_username): ?><?php echo $username; ?><?php endif; ?><?php if ($show_slash): ?>/<?php endif; ?><strong><?php echo $reponame; ?></strong>
+                            <?php if ($show_username): ?><?php echo $username; ?><?php endif; ?><?php if ($show_slash): ?>/<?php endif; ?><strong><?php echo !empty($heading) ? $heading : $reponame; ?></strong>
                         </a>
                     </h3>
                     <?php if ($show_description): ?>
