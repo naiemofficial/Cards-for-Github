@@ -48,6 +48,13 @@ Displays a full GitHub card with avatar, description, contributors, issues, star
 Shows a minimal GitHub card similar to:  
 https://gh-card.dev/repos/naiemofficial/Github-Cards.svg
 
+
+### Customization Options
+- class="custom-css-class" - Add a custom CSS class to the card for additional styling.
+- heading="Custom Heading Text" (default: repository name) - Set a custom heading text instead of the default repository name.
+- description-text="Custom description text" (default: repository description) - Set a custom description text instead of the default repository description.
+
+
 ### Hide Elements
 Each component can be shown/hidden:
 
@@ -111,3 +118,7 @@ Not at the moment.
 == Changelog ==
 = 1.0.0 =
 Initial release.
+
+
+
+

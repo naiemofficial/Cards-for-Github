@@ -12,11 +12,17 @@ function fn_github_card_template($atts)
 
 
     $repo = isset($atts['repo']) ? esc_attr($atts['repo']) : '/';
+    $class = isset($atts['class']) ? esc_attr($atts['class']) : '';
+    $heading = isset($atts['heading']) ? esc_attr($atts['heading']) : null;
+    $description_text = isset($atts['description-text']) ? esc_attr($atts['description-text']) : null;
 
     // split by slash to get username and reponame
     $exploded_repo = explode('/', trim($repo, '/'));
     $username = isset($exploded_repo[0]) ? $exploded_repo[0] : $repo;
     $reponame = isset($exploded_repo[1]) ? $exploded_repo[1] : '';
+    if(!empty($heading)){
+        $reponame = $heading;
+    }
     $repolink = "https://github.com/" . $username . "/" . $reponame;
 
     // Card 
@@ -71,7 +77,8 @@ function fn_github_card_template($atts)
             $error = true;
             $error_text = json_encode($repo_data);
         }
-        $description = get_or_null($repo_data, 'description');
+        
+        $description = !empty($description_text) ? $description_text : get_or_null($repo_data, 'description');
 
         $user = get_or_null($repo_data, 'user');
         $user_avatar_url = $avatar_is_url ? $avatar_url : get_or_null($user, 'avatar_url');
@@ -93,7 +100,7 @@ function fn_github_card_template($atts)
         <?php endif; ?>
         data-parameters='<?php echo json_encode($paratmeters); ?>
     '>
-        <div class="github-card">
+        <div class="github-card<?php echo (' ' . $class); ?>">
             <?php if (github_card_wrapper_preloader() && github_card_preloader_type('spinner')) { ?>
                 <div class="github-card-wrapper-preloader">
                     <?php echo $data_loading_icon; ?>
