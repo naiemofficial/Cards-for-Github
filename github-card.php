@@ -8,6 +8,8 @@
  * Author: Abdullah Al Naiem
  * Author URI: https://naiem.info
  * Text Domain: github-cards
+ * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 define('GITHUB_CARD_PLUGIN_NAME', 'Github Card');
