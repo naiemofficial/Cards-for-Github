@@ -1,4 +1,9 @@
 <?php
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+
 include 'functions.php';
 
 include 'repo.php';

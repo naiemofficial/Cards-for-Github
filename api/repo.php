@@ -1,6 +1,10 @@
 <?php
+if (! defined('ABSPATH')) {
+    exit;
+}
 
-function get_github_repo_data($repo_full) {
+
+function github_card_get_repo_data($repo_full) {
     // ----------------------------
     // Build API endpoints
     // ----------------------------
@@ -42,7 +46,7 @@ function get_github_repo_data($repo_full) {
     // ----------------------------
     // Final return array
     // ----------------------------
-    var_dump($issues_total);
+    
     $repo_data = array_merge($repo_data, [
         'stars'        => $repo_data['stargazers_count'] ?? 0,
         'forks'        => $repo_data['forks_count'] ?? 0,
@@ -56,6 +60,6 @@ function get_github_repo_data($repo_full) {
 }
 
 
-function load_github_repo_data($repo_full) {
-    return get_github_repo_data($repo_full);
+function github_card_load_repo_data($repo_full) {
+    return github_card_get_repo_data($repo_full);
 }

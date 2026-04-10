@@ -1,4 +1,7 @@
 <?php
+if (! defined('ABSPATH')) {
+    exit;
+}
 
 /**
  * Enqueue admin CSS and Script
@@ -7,7 +10,7 @@ function github_card_admin_style_scripts($hook){
 
     if ($hook !== 'toplevel_page_github-card-settings') return;
 
-    if (isset($_GET['page']) && $_GET['page'] === 'github-card-settings') {
+    // if (isset($_GET['page']) && sanitize_key(wp_unslash($_GET['page'])) === 'github-card-settings') {
         wp_enqueue_style('font-awesome', plugin_dir_url(__FILE__) . '../assets/libs/fontawesome/css/fontawesome.min.css', [], '7.1.0');
 
         wp_enqueue_style(
@@ -48,6 +51,6 @@ function github_card_admin_style_scripts($hook){
         // WordPress built-in color picker
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
-    }
+    // }
 }
 add_action('admin_enqueue_scripts', 'github_card_admin_style_scripts');

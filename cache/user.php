@@ -1,11 +1,13 @@
 <?php
-
+if (! defined('ABSPATH')) {
+    exit;
+}
 
 require_once plugin_dir_path(__FILE__) . '../api/user.php';
 
 
 
-function get_github_user_data_cached($username) {
+function github_card_get_user_data_cached($username) {
     $transient_key = 'github_card_user_' . md5($username);
 
     // Check if cached
@@ -18,7 +20,7 @@ function get_github_user_data_cached($username) {
     }
 
     // Load from API
-    $user_data = load_get_github_user_data($username);
+    $user_data = github_card_load_get_user_data($username);
 
     // Don't cache if any error
     if ($user_data instanceof WP_Error) return $user_data;

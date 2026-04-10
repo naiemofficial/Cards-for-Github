@@ -2,24 +2,141 @@
 // Exit if accessed directly
 if (!defined('ABSPATH')) exit;
 
+
 /**
- * Register settings
+ * =====================================================
+ * SANITIZATION FUNCTIONS
+ * =====================================================
+ */
+
+// Checkbox sanitize
+function github_card_sanitize_checkbox($value)
+{
+    return ($value === 'on') ? 'on' : '';
+}
+
+// Text sanitize
+function github_card_sanitize_text($value)
+{
+    return sanitize_text_field($value);
+}
+
+// Integer sanitize
+function github_card_sanitize_int($value)
+{
+    return isset($value) ? absint($value) : 0;
+}
+
+// Hex color sanitize
+function github_card_sanitize_color($value)
+{
+    return sanitize_hex_color($value);
+}
+
+// Preloader type whitelist
+function github_card_sanitize_preloader_type($value)
+{
+    $allowed = ['spinner', 'skeleton', 'none'];
+    return in_array($value, $allowed, true) ? $value : 'spinner';
+}
+
+
+/**
+ * =====================================================
+ * REGISTER SETTINGS (FIXED FOR PLUGIN CHECK)
+ * =====================================================
  */
 function github_card_register_settings()
 {
 
-    register_setting('github_card_settings_group', 'github_card_load_with');
-    register_setting('github_card_settings_group', 'github_card_preloader_type');
-    register_setting('github_card_settings_group', 'github_card_wrapper_preloader');
-    register_setting('github_card_settings_group', 'github_card_data_preloader');
-    register_setting('github_card_settings_group', 'github_card_auto_scale');
-    register_setting('github_card_settings_group', 'github_card_cache_enabled');
-    register_setting('github_card_settings_group', 'github_card_cache_duration');
+    register_setting('github_card_settings_group', 'github_card_load_with', [
+        'sanitize_callback' => 'github_card_sanitize_text',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_preloader_type', [
+        'sanitize_callback' => 'github_card_sanitize_preloader_type',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_wrapper_preloader', [
+        'sanitize_callback' => 'github_card_sanitize_checkbox',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_data_preloader', [
+        'sanitize_callback' => 'github_card_sanitize_checkbox',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_auto_scale', [
+        'sanitize_callback' => 'github_card_sanitize_checkbox',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_cache_enabled', [
+        'sanitize_callback' => 'github_card_sanitize_checkbox',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_cache_duration', [
+        'sanitize_callback' => 'github_card_sanitize_int',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_width', [
+        'sanitize_callback' => 'github_card_sanitize_int',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_height', [
+        'sanitize_callback' => 'github_card_sanitize_int',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_preloader_spinner_color', [
+        'sanitize_callback' => 'github_card_sanitize_color',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_preloader_background_color', [
+        'sanitize_callback' => 'github_card_sanitize_color',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_enable_preloader_blur', [
+        'sanitize_callback' => 'github_card_sanitize_checkbox',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_preloader_blur_px', [
+        'sanitize_callback' => 'github_card_sanitize_int',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_skeleton_primary_color', [
+        'sanitize_callback' => 'github_card_sanitize_color',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_skeleton_secondary_color', [
+        'sanitize_callback' => 'github_card_sanitize_color',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_footer_ribbon', [
+        'sanitize_callback' => 'github_card_sanitize_checkbox',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_language_ribbon', [
+        'sanitize_callback' => 'github_card_sanitize_checkbox',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_footer_ribbon_color', [
+        'sanitize_callback' => 'github_card_sanitize_color',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_fontawesome_support', [
+        'sanitize_callback' => 'github_card_sanitize_text',
+    ]);
+
+    register_setting('github_card_settings_group', 'github_card_cache_enabled', [
+        'sanitize_callback' => 'github_card_sanitize_checkbox',
+    ]);
 }
 add_action('admin_init', 'github_card_register_settings');
 
 
-// Add body class for admin page
+/**
+ * =====================================================
+ * ADMIN BODY CLASS
+ * =====================================================
+ */
 function github_card_admin_body_class($classes)
 {
     $screen = get_current_screen();
@@ -31,25 +148,21 @@ function github_card_admin_body_class($classes)
 add_filter('admin_body_class', 'github_card_admin_body_class');
 
 
-
-
-
-
-
-
-
-
 /**
- * Add menu page
+ * =====================================================
+ * MENU PAGE
+ * =====================================================
  */
 function github_card_add_menu_page()
 {
-    // Correct SVG handling for admin menu icon
     $icon_path = plugin_dir_path(__DIR__) . 'admin/assets/icons/square-github.svg';
-    $svg       = file_get_contents($icon_path);
 
-    // Base64 encode the SVG for proper WordPress scaling
-    $icon_url  = 'data:image/svg+xml;base64,' . base64_encode($svg);
+    $svg = '';
+    if (file_exists($icon_path)) {
+        $svg = file_get_contents($icon_path);
+    }
+
+    $icon_url = 'data:image/svg+xml;base64,' . base64_encode($svg);
 
     add_menu_page(
         'Github Card',
@@ -70,14 +183,14 @@ add_action('admin_menu', 'github_card_add_menu_page');
  */
 function github_card_render_admin_page()
 {
-    global $all_input_settings, $defaults;
+    global $github_card_all_input_settings, $github_card_defaults;
 ?>
 
     <div class="github-card-admin wrap max-w-4xl mx-auto py-8 animate-fade-in">
 
         <h1 class="github-card-admin-heading">Github Card Settings</h1>
         <div class="github-card-banner-wrapper">
-            <img src="<?php echo plugin_dir_url(__DIR__); ?>admin/assets/banners/github-card.svg" alt="Github Card Banner" class="admin-settings-banner" />
+            <img src="<?php echo esc_url(plugin_dir_url(__DIR__)); ?>admin/assets/banners/github-card.svg" alt="Github Card Banner" class="admin-settings-banner" />
         </div>
         <form method="post" action="options.php" class="space-y-10">
             <?php settings_fields('github_card_settings_group'); ?>
@@ -89,7 +202,7 @@ function github_card_render_admin_page()
                 <!-- Load With -->
                 <?php
                 $key = 'github_card_load_with';
-                $input = $all_input_settings[$key];
+                $input = $github_card_all_input_settings[$key];
                 $label = $input['label'];
                 $load_with = github_card_load_with();
                 $values = $input['values'];
@@ -118,7 +231,7 @@ function github_card_render_admin_page()
                             <!-- Wrapper Preloader  -->
                             <?php
                             $key = 'github_card_wrapper_preloader';
-                            $input = $all_input_settings[$key];
+                            $input = $github_card_all_input_settings[$key];
                             $label = $input['label'];
                             $value = github_card_wrapper_preloader(other_input_dependency: false);
                             ?>
@@ -136,7 +249,7 @@ function github_card_render_admin_page()
                             <!-- Preloader Type -->
                             <?php
                             $key = 'github_card_preloader_type';
-                            $input = $all_input_settings[$key];
+                            $input = $github_card_all_input_settings[$key];
                             $label = $input['label'];
                             $preloader_type = github_card_preloader_type(other_input_dependency: false);
                             $values = $input['values'];
@@ -160,7 +273,7 @@ function github_card_render_admin_page()
                             <!-- Data Preloader  -->
                             <?php
                             $key = 'github_card_data_preloader';
-                            $input = $all_input_settings[$key];
+                            $input = $github_card_all_input_settings[$key];
                             $label = $input['label'];
                             $value = github_card_data_preloader(other_input_dependency: false);
                             ?>
@@ -187,7 +300,7 @@ function github_card_render_admin_page()
                         <div class="inline-flex flex-row items-center gap-4">
                             <?php
                             $key = 'github_card_width';
-                            $input = $all_input_settings[$key];
+                            $input = $github_card_all_input_settings[$key];
                             $label = $input['label'];
                             $placeholder = $input['placeholder'];
                             $value = github_card_width(other_input_dependency: false);
@@ -201,7 +314,7 @@ function github_card_render_admin_page()
 
                             <?php
                             $key = 'github_card_height';
-                            $input = $all_input_settings[$key];
+                            $input = $github_card_all_input_settings[$key];
                             $label = $input['label'];
                             $placeholder = $input['placeholder'];
                             $value = github_card_height(other_input_dependency: false);
@@ -212,15 +325,15 @@ function github_card_render_admin_page()
                             </div>
                         </div>
                     </div>
-                
-                
+
+
 
 
 
                     <!-- Auto Scale -->
                     <?php
                     $key = 'github_card_auto_scale';
-                    $input = $all_input_settings[$key];
+                    $input = $github_card_all_input_settings[$key];
                     $label = $input['label'];
                     $description = $input['description'];
                     $value = github_card_auto_scale(other_input_dependency: false);
@@ -228,9 +341,9 @@ function github_card_render_admin_page()
                     <div class="flex items-center justify-between animate-fade-in-up">
                         <div>
                             <label class="font-medium"><?php echo esc_html($label); ?></label>
-                            <p><?php echo $description; ?></p>
+                            <p><?php echo esc_html($description); ?></p>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointe checkbox-label m-0">
+                        <label class="relative inline-flex items-center cursor-pointer checkbox-label m-0">
                             <input type="checkbox" name="<?php echo esc_attr($key); ?>" value="on" class="sr-only peer" <?php checked($value); ?> />
                             <div class="w-10 h-6 bg-white border border-gray-300 rounded-full transition-colors duration-300 peer-checked"></div>
                             <span class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked"></span>
@@ -243,7 +356,7 @@ function github_card_render_admin_page()
                 <!-- Spinner -->
                 <?php
                 $key = 'github_card_spinner';
-                $input = $all_input_settings[$key];
+                $input = $github_card_all_input_settings[$key];
                 $label = $input['label'];
                 $values = $input['values'];
                 $spinner = github_card_spinner(other_input_dependency: false);
@@ -270,7 +383,7 @@ function github_card_render_admin_page()
                     <!-- Footer Ribbon  -->
                     <?php
                     $key = 'github_card_footer_ribbon';
-                    $input = $all_input_settings[$key];
+                    $input = $github_card_all_input_settings[$key];
                     $label = $input['label'];
                     $value = github_card_footer_ribbon(other_input_dependency: false);
                     ?>
@@ -287,7 +400,7 @@ function github_card_render_admin_page()
                     <!-- Language Ribbon  -->
                     <?php
                     $key = 'github_card_language_ribbon';
-                    $input = $all_input_settings[$key];
+                    $input = $github_card_all_input_settings[$key];
                     $label = $input['label'];
                     $value = github_card_language_ribbon(other_input_dependency: false);
                     ?>
@@ -306,7 +419,7 @@ function github_card_render_admin_page()
                 <!-- Error -->
                 <?php
                 $key = 'github_card_error';
-                $input = $all_input_settings[$key];
+                $input = $github_card_all_input_settings[$key];
                 $label = $input['label'];
                 $description = $input['description'];
                 $value = github_card_error(other_input_dependency: false);
@@ -317,10 +430,10 @@ function github_card_render_admin_page()
                             <i class="fas fa-exclamation-triangle"></i>
                             <label class=" font-medium"><?php echo esc_html($label); ?></label>
                         </div>
-                        <p class="text-small"><?php echo $description; ?></p>
+                        <p class="text-small"><?php echo esc_html($description); ?></p>
                     </div>
 
-                    <label class="relative inline-flex items-center cursor-pointe checkbox-label m-0">
+                    <label class="relative inline-flex items-center cursor-pointer checkbox-label m-0">
                         <input type="checkbox" name="<?php echo esc_attr($key); ?>" value="on" class="sr-only peer" <?php checked($value); ?> />
                         <div class="w-10 h-6 bg-white border border-gray-300 rounded-full transition-colors duration-300 peer-checked"></div>
                         <span class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked"></span>
@@ -336,7 +449,7 @@ function github_card_render_admin_page()
                     <!-- Spinner Color  -->
                     <?php
                     $key = 'github_card_preloader_spinner_color';
-                    $input = $all_input_settings[$key];
+                    $input = $github_card_all_input_settings[$key];
                     $label = $input['label'];
                     $description = $input['description'];
                     $value = github_card_preloader_spinner_color(other_input_dependency: false);
@@ -345,7 +458,7 @@ function github_card_render_admin_page()
                         <div class="flex flex-col">
                             <label class="font-medium"><?php echo esc_html($label); ?></label>
                             <?php if (!empty($description)): ?>
-                                <p class="text-small"><?php echo $description; ?></p>
+                                <p class="text-small"><?php echo esc_html($description); ?></p>
                             <?php endif; ?>
                         </div>
                         <input type="text" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>" class="github-card-color-field" />
@@ -360,7 +473,7 @@ function github_card_render_admin_page()
                             <!-- Wrapper Preloader Background  -->
                             <?php
                             $key = 'github_card_preloader_background_color';
-                            $input = $all_input_settings[$key];
+                            $input = $github_card_all_input_settings[$key];
                             $label = $input['label'];
                             $description = $input['description'];
                             $value = github_card_preloader_spinner_color(other_input_dependency: false);
@@ -369,7 +482,7 @@ function github_card_render_admin_page()
                                 <div class="flex flex-col">
                                     <label class="font-medium"><?php echo esc_html($label); ?></label>
                                     <?php if (!empty($description)): ?>
-                                        <p class="text-small"><?php echo $description; ?></p>
+                                        <p class="text-small"><?php echo esc_html($description); ?></p>
                                     <?php endif; ?>
                                 </div>
                                 <input type="text" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>" class="github-card-color-field" />
@@ -379,7 +492,7 @@ function github_card_render_admin_page()
                             <!-- Preloader Blur -->
                             <?php
                             $key_enable_preloader_blur = 'github_card_enable_preloader_blur';
-                            $input_enable_preloader_blur = $all_input_settings[$key_enable_preloader_blur];
+                            $input_enable_preloader_blur = $github_card_all_input_settings[$key_enable_preloader_blur];
                             $label_enable_preloader_blur = $input_enable_preloader_blur['label'];
                             $description_enable_preloader_blur = $input_enable_preloader_blur['description'];
                             $value_enable_preloader_blur = github_card_enable_preloader_blur(other_input_dependency: false);
@@ -392,7 +505,7 @@ function github_card_render_admin_page()
                                     <div>
                                         <label class="font-medium"><?php echo esc_html($label_enable_preloader_blur); ?></label>
                                         <?php if (!empty($description_enable_preloader_blur)): ?>
-                                            <p class="text-small"><?php echo $description_enable_preloader_blur; ?></p>
+                                            <p class="text-small"><?php echo esc_html($description_enable_preloader_blur); ?></p>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -420,12 +533,12 @@ function github_card_render_admin_page()
                         <div class="flex flex-col items-end gap-4 flex-1 pl-5" style="border-left: 3px dashed #e5e7eb;">
                             <?php
                             $key_primary = 'github_card_skeleton_primary_color';
-                            $input_primary = $all_input_settings[$key_primary];
+                            $input_primary = $github_card_all_input_settings[$key_primary];
                             $label_primary = $input_primary['label'];
                             $value_primary = github_card_skeleton_primary_color(other_input_dependency: false);
 
                             $key_secondary = 'github_card_skeleton_secondary_color';
-                            $input_secondary = $all_input_settings[$key_secondary];
+                            $input_secondary = $github_card_all_input_settings[$key_secondary];
                             $label_secondary = $input_secondary['label'];
                             $description_secondary = $input_secondary['description'];
                             $value_secondary = github_card_skeleton_secondary_color(other_input_dependency: false);
@@ -438,7 +551,7 @@ function github_card_render_admin_page()
                                 <div>
                                     <label class="mb-2 font-medium"><?php echo esc_html($label_secondary); ?></label>
                                     <?php if (!empty($description_secondary)): ?>
-                                        <p class="text-small"><?php echo $description_secondary; ?></p>
+                                        <p class="text-small"><?php echo esc_html($description_secondary); ?></p>
                                     <?php endif; ?>
                                 </div>
                                 <input type="text" name="<?php echo esc_attr($key_secondary); ?>" value="<?php echo esc_attr($value_secondary); ?>" class="github-card-color-field" />
@@ -451,7 +564,7 @@ function github_card_render_admin_page()
                 <!-- Footer Ribbon Color -->
                 <?php
                 $key = 'github_card_footer_ribbon_color';
-                $input = $all_input_settings[$key];
+                $input = $github_card_all_input_settings[$key];
                 $label = $input['label'];
                 $value = github_card_footer_ribbon_color(other_input_dependency: false);
                 ?>
@@ -468,7 +581,7 @@ function github_card_render_admin_page()
                 <h2 class="text-xl font-semibold border-b pb-2">Other Settings</h2>
                 <?php
                 $key = 'github_card_fontawesome_support';
-                $input = $all_input_settings[$key];
+                $input = $github_card_all_input_settings[$key];
                 $label = $input['label'];
                 $version = $input['version'];
                 $description = $input['description'];
@@ -482,7 +595,7 @@ function github_card_render_admin_page()
                             <label class="font-medium"><?php echo esc_html($label); ?></label>
                             <span class="ml-1 inline-block bg-gray-200 text-gray-800 text-xs font-semibold px-2 py-1 rounded"><?php echo esc_html($version); ?></span>
                         </div>
-                        <p><?php echo $description; ?></p>
+                        <p><?php echo esc_html($description); ?></p>
                     </div>
                     <div class="flex flex-col gap-2">
                         <div class="flex gap-6">
@@ -521,7 +634,7 @@ function github_card_render_admin_page()
 
                 <?php
                 $key = 'github_card_cache_enabled';
-                $input = $all_input_settings[$key];
+                $input = $github_card_all_input_settings[$key];
                 $label = $input['label'];
                 $cache_enabled = github_card_cache_enabled(other_input_dependency: false);
                 ?>
@@ -536,20 +649,20 @@ function github_card_render_admin_page()
 
                 <?php
                 $key = 'github_card_cache_duration';
-                $input = $all_input_settings[$key];
+                $input = $github_card_all_input_settings[$key];
                 $label = $input['label'];
                 $placeholder = $input['placeholder'] ?? '';
-                $cache_duration = github_card_cache_duration(other_input_dependency: false)
+                $cache_duration = github_card_cache_duration(other_input_dependency: false);
                 ?>
                 <div class="flex items-center justify-between animate-fade-in" data-condition="cache-enabled-on">
                     <label class="block font-medium mb-2"><?php echo esc_html($label); ?></label>
-                    <input type="number" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($cache_duration); ?>" min="1" placeholder="<?php echo $placeholder; ?>" class="border rounded-lg px-3 py-2 w-32 focus:ring-[#141414] focus:border-[#141414]">
+                    <input type="number" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($cache_duration); ?>" min="1" placeholder="<?php echo esc_attr($placeholder); ?>" class="border rounded-lg px-3 py-2 w-32 focus:ring-[#141414] focus:border-[#141414]">
                 </div>
 
 
                 <?php
                 $key = 'github_card_clear_cache';
-                $input = $all_input_settings[$key];
+                $input = $github_card_all_input_settings[$key];
                 $type = $input['type'];
                 $label = $input['label'];
                 $description = $input['description'];
@@ -568,8 +681,8 @@ function github_card_render_admin_page()
                             id="<?php echo esc_attr($key); ?>"
                             class="border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-100 github-card-admin-button clear-github-card-cache"
                             data-action="<?php echo esc_attr($action); ?>"
-                            data-loading="<?php esc_attr_e('Clearing...'); ?>"
-                            data-success="<?php esc_attr_e('Cleared!'); ?>">
+                            data-loading="<?php esc_attr_e('Clearing...', 'cards-for-github'); ?>"
+                            data-success="<?php esc_attr_e('Cleared!', 'cards-for-github'); ?>">
                             <i class="fa-solid <?php echo esc_attr($icons['default']); ?> gc-icon-default"></i>
                             <i class="fa-solid <?php echo esc_attr($icons['loading']); ?> gc-icon-loading" style="display:none;"></i>
                             <i class="fa-solid <?php echo esc_attr($icons['success']); ?> gc-icon-success" style="display:none; color:#2ecc71;"></i>
@@ -586,8 +699,8 @@ function github_card_render_admin_page()
                 <button
                     type="button" id="github_card_save_settings"
                     class="github-card-admin-button save-github-card-settings"
-                    data-loading="<?php esc_attr_e('Saving...'); ?>"
-                    data-success="<?php esc_attr_e('Saved!'); ?>">
+                    data-loading="<?php esc_attr_e('Saving...', 'cards-for-github'); ?>"
+                    data-success="<?php esc_attr_e('Saved!', 'cards-for-github'); ?>">
                     <i class="fa-solid fa-floppy-disk gc-icon-default"></i>
                     <i class="fa-solid fa-spinner fa-spin gc-icon-loading" style="display:none;"></i>
                     <i class="fa-solid fa-circle-check gc-icon-success" style="display:none; color:#2ecc71;"></i>
@@ -603,8 +716,8 @@ function github_card_render_admin_page()
                     </label>
                     <button type="reset" id="github_card_reset_settings"
                         class="github-card-admin-button reset-github-card-settings"
-                        data-loading="<?php esc_attr_e('Resetting...'); ?>"
-                        data-success="<?php esc_attr_e('Reset!'); ?>"
+                        data-loading="<?php esc_attr_e('Resetting...', 'cards-for-github'); ?>"
+                        data-success="<?php esc_attr_e('Reset!', 'cards-for-github'); ?>"
                         disabled>
                         <i class="fa-solid fa-rotate-left gc-icon-default"></i>
                         <i class="fa-solid fa-spinner fa-spin gc-icon-loading" style="display:none;"></i>

@@ -3,7 +3,7 @@
 
 
 
-# Github Cards
+# Cards for Github
 
 A plugin to showcase GitHub repositories in beautiful, dynamic card layouts similar to social media cards. Displays stars, forks, issues, contributors, description, and more using the GitHub API.
 

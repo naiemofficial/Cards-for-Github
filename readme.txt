@@ -1,20 +1,19 @@
-=== Github Cards ===
+=== Cards for Github ===
 Contributors: naiemofficial
-Tags: github, github card, repository card, developer tools, api, profile card
+Tags: github, github card, repository card, developer tools, profile card
 Requires at least: 5.0
-Tested up to: 6.7
+Tested up to: 6.9
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A plugin to showcase GitHub repositories in beautiful, dynamic card layouts similar to social media cards. Displays stars, forks, issues, contributors, description, and more using the GitHub API.
+Display GitHub repositories in responsive card layouts with stars, forks, issues, and more using the GitHub API.
 
 == Description ==
 The plugin displays GitHub repository information in a stylish card format similar to social media preview cards.  
 It fetches data from the GitHub API and presents details such as stars, forks, issues, contributors, language colors, description, and more.
 
 Cards can load using PHP or JavaScript, support shortcode integration, customizable appearance, preloader animations, responsive auto-scaling, and color customization options.
-
 == Features ==
 - Display GitHub repository information in a card layout
 - Fetch data from GitHub API

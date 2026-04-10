@@ -1,7 +1,12 @@
-<?php 
+<?php
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+
 use Symfony\Component\Yaml\Yaml;
 
-function get_github_linguist_data() {
+function github_card_get_linguist_data() {
     $cache_key = 'github_linguist_colors';
     $linguist_colors = get_transient($cache_key);
     if ($linguist_colors !== false) return $linguist_colors;
@@ -36,6 +41,6 @@ function get_github_linguist_data() {
 
 
 
-function load_github_linguist_data() {
-    return get_github_linguist_data();
+function github_card_load_linguist_data() {
+    return github_card_get_linguist_data();
 }

@@ -1,4 +1,9 @@
 <?php
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+
 
 /**
  * Generic shortcode builder for a specific field.
@@ -11,7 +16,7 @@ function github_repo_data_cached($atts, $field, $shortcode = true){
     if (empty($a['repo'])) return 'Missing repo=""';
 
     // Get repo repo_data
-    $repo_data = get_github_repo_data_cached($a['repo']);
+    $repo_data = github_card_get_repo_data_cached($a['repo']);
 
     // Check errors
     if (!$repo_data) return 'Error: empty data - (Ref: S>S)';
@@ -64,20 +69,20 @@ function github_languages_cached($atts, $repo_data, $shortcode = true){
 
 
 
-function fn_github_repo_data($atts, $field){
+function github_card_fn_github_repo_data($atts, $field){
     return github_repo_data_cached($atts, $field, true);
 }
 
 
-function full_github_repo_data($atts){
+function github_card_full_github_repo_data($atts){
 	$repo_data = github_repo_data_cached($atts, 'full_info', false);
 
     if(github_card_language_ribbon()){
-	    assign_color_to_repo_languages($repo_data);
+	    github_card_assign_color_to_repo_languages($repo_data);
     }
     
 	if(!is_wp_error($repo_data) && is_array($repo_data)){
-		$repo_data['user'] = assign_user_data_to_repo($atts);
+		$repo_data['user'] = github_card_assign_user_data_to_repo($atts);
 	}
 	
 	return $repo_data;
@@ -88,21 +93,21 @@ function full_github_repo_data($atts){
 
 
 add_shortcode('github_stars_count', function($atts){
-    return fn_github_repo_data($atts, 'stars');
+    return github_card_fn_github_repo_data($atts, 'stars');
 });
 
 add_shortcode('github_forks_count', function($atts){
-    return fn_github_repo_data($atts, 'forks');
+    return github_card_fn_github_repo_data($atts, 'forks');
 });
 
 add_shortcode('github_issues_count', function($atts){
-    return fn_github_repo_data($atts, 'all_issues');
+    return github_card_fn_github_repo_data($atts, 'all_issues');
 });
 
 add_shortcode('github_contributors_count', function($atts){
-    return fn_github_repo_data($atts, 'contributors');
+    return github_card_fn_github_repo_data($atts, 'contributors');
 });
 
 add_shortcode('github_languages', function($atts){
-    return fn_github_repo_data($atts, 'languages');
+    return github_card_fn_github_repo_data($atts, 'languages');
 });

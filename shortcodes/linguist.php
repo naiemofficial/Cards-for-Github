@@ -1,7 +1,12 @@
-<?php 
+<?php
+if (! defined('ABSPATH')) {
+	exit;
+}
 
-function fn_github_linguist($shortcode = true){
-    $linguist_colors = get_github_linguist_cached();
+
+
+function github_card_fn_github_linguist($shortcode = true){
+    $linguist_colors = github_card_get_linguist_cached();
     if(!$linguist_colors) return 'Error: empty data - (Ref: S>L)';
     if($linguist_colors instanceof WP_Error) return $shortcode ? json_encode($linguist_colors) : $linguist_colors;
 
@@ -9,12 +14,12 @@ function fn_github_linguist($shortcode = true){
 }
 
 
-function assign_color_to_repo_languages(&$repo_data){
+function github_card_assign_color_to_repo_languages(&$repo_data){
 	if (is_wp_error($repo_data)){
 		return $repo_data;
 	}
 		
-	$linguist_data = get_github_linguist_cached(); //
+	$linguist_data = github_card_get_linguist_cached(); //
 	if (is_wp_error($linguist_data)) {
 		$repo_data = $linguist_data;
 		return $repo_data;
@@ -39,7 +44,7 @@ function assign_color_to_repo_languages(&$repo_data){
 					'color' => $color,
 				];
 				
-				[$color_gradient, $current_start] = add_gradient_stop( $color, $percentage, $current_start, $color_gradient );
+				[$color_gradient, $current_start] = github_card_add_gradient_stop( $color, $percentage, $current_start, $color_gradient );
 				if ($current_start >= 100.0) {
 					break;
 				}
@@ -53,7 +58,7 @@ function assign_color_to_repo_languages(&$repo_data){
 	return $repo_data;
 }
 
-add_shortcode('github_linguist', 'fn_github_linguist');
+add_shortcode('github_linguist', 'github_card_fn_github_linguist');
 
 
 
@@ -66,7 +71,7 @@ add_shortcode('github_linguist', 'fn_github_linguist');
 
 
 
-function add_gradient_stop(string $color, float $percentage, float $current_start, string $color_gradient): array {
+function github_card_add_gradient_stop(string $color, float $percentage, float $current_start, string $color_gradient): array {
 	if ($percentage <= 0) {
 		// Return original values if no block is added
 		return [$color_gradient, $current_start];

@@ -1,6 +1,11 @@
-<?php 
+<?php
+if (! defined('ABSPATH')) {
+    exit;
+}
 
-function get_github_user_data($username){
+
+
+function github_card_get_user_data($username){
     $api = "https://api.github.com/users/{$username}";
 
     // Fetch user data
@@ -16,6 +21,6 @@ function get_github_user_data($username){
 }
 
 
-function load_get_github_user_data($username) {
-    return get_github_user_data($username);
+function github_card_load_get_user_data($username) {
+    return github_card_get_user_data($username);
 }

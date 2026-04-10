@@ -1,4 +1,7 @@
 <?php
+if (! defined('ABSPATH')) {
+    exit;
+}
 
 // Enqueue Styles and Scripts
 function github_card_enqueue_styles_script(){

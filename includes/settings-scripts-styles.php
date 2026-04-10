@@ -1,7 +1,13 @@
 <?php
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+
+
 // ------------------------- START - Load with JS --------------------------------- 
 if (github_card_load_with('js')) {
-    global $data_loading_icon, $counts_empty_placeholder;
+    global $github_card_data_loading_icon, $github_card_counts_empty_placeholder;
 ?>
     <script type="text/javascript">
         function handleError(data, elements = {}) {
@@ -21,7 +27,7 @@ if (github_card_load_with('js')) {
 
             // Show error to description
             if (descriptionElement) {
-                const show_github_card_error = Boolean(<?php echo filter_var(github_card_error(), FILTER_VALIDATE_BOOL); ?>);
+                const show_github_card_error = <?php echo github_card_error() ? 'true' : 'false'; ?>;
                 if (show_github_card_error) {
                     descriptionElement.textContent = JSON.stringify(message);
                     descriptionElement.classList.add('error');
@@ -33,7 +39,7 @@ if (github_card_load_with('js')) {
             // Replace counts with empty placeholder
             [contributorsCountElement, issuesCountElement, starsCountElement, forksCountElement].forEach(countElement => {
                 if (countElement) {
-                    countElement.innerHTML = '<?php echo $counts_empty_placeholder; ?>';
+                    countElement.innerHTML = <?php echo wp_json_encode($github_card_counts_empty_placeholder); ?>;
                 }
             });
         }
@@ -71,18 +77,18 @@ if (github_card_load_with('js')) {
                     .then(data => {
                         if (data.success && data.data) {
                             const $repo_data = data.data;
-                            const $description = get_or_null($repo_data, 'description');
+                            const $description = github_card_get_or_null($repo_data, 'description');
 
-                            const $user = get_or_null($repo_data, 'user');
-                            const $user_avatar_url = avatar_is_url ? avatar_url : get_or_null($user, 'avatar_url');
+                            const $user = github_card_get_or_null($repo_data, 'user');
+                            const $user_avatar_url = avatar_is_url ? avatar_url : github_card_get_or_null($user, 'avatar_url');
 
-                            const $contributors = get_or_null($repo_data, 'contributors');
-                            const $issues = get_or_null($repo_data, 'all_issues');
-                            const $open_issues = get_or_null($repo_data, 'open_issues');
-                            const $stars = get_or_null($repo_data, 'stars');
-                            const $forks = get_or_null($repo_data, 'forks');
+                            const $contributors = github_card_get_or_null($repo_data, 'contributors');
+                            const $issues = github_card_get_or_null($repo_data, 'all_issues');
+                            const $open_issues = github_card_get_or_null($repo_data, 'open_issues');
+                            const $stars = github_card_get_or_null($repo_data, 'stars');
+                            const $forks = github_card_get_or_null($repo_data, 'forks');
 
-                            $color_gradient = get_or_null($repo_data, 'color_gradient');
+                            $color_gradient = github_card_get_or_null($repo_data, 'color_gradient');
 
 
 
@@ -108,37 +114,37 @@ if (github_card_load_with('js')) {
 
                             // Contributors
                             if (contributorsCountElement) {
-                                contributorsCountElement.textContent = $contributors !== null ? contributors_plus($contributors) : '<?php echo esc_js($counts_empty_placeholder); ?>';
+                                contributorsCountElement.textContent = $contributors !== null ? github_card_contributors_plus($contributors) : '<?php echo esc_js($github_card_counts_empty_placeholder); ?>';
                                 const contribLabel = repoCard.querySelector('[data-repo-contributor-label]');
                                 if (contribLabel) {
-                                    contribLabel.textContent = pluralize($contributors, 'Contributor', 's');
+                                    contribLabel.textContent = github_card_pluralize($contributors, 'Contributor', 's');
                                 }
                             }
 
                             // Issues
                             if (issuesCountElement) {
-                                issuesCountElement.textContent = $open_issues !== null ? compact_number($open_issues) : '<?php echo esc_js($counts_empty_placeholder); ?>';
+                                issuesCountElement.textContent = $open_issues !== null ? github_card_compact_number($open_issues) : '<?php echo esc_js($github_card_counts_empty_placeholder); ?>';
                                 const issuesLabel = repoCard.querySelector('[data-repo-issues-label]');
                                 if (issuesLabel) {
-                                    issuesLabel.textContent = pluralize($open_issues, 'Issue', 's');
+                                    issuesLabel.textContent = github_card_pluralize($open_issues, 'Issue', 's');
                                 }
                             }
 
                             // Stars
                             if (starsCountElement) {
-                                starsCountElement.textContent = $stars !== null ? compact_number($stars) : '<?php echo esc_js($counts_empty_placeholder); ?>';
+                                starsCountElement.textContent = $stars !== null ? github_card_compact_number($stars) : '<?php echo esc_js($github_card_counts_empty_placeholder); ?>';
                                 const starsLabel = repoCard.querySelector('[data-repo-stars-label]');
                                 if (starsLabel) {
-                                    starsLabel.textContent = pluralize($stars, 'Star', 's');
+                                    starsLabel.textContent = github_card_pluralize($stars, 'Star', 's');
                                 }
                             }
 
                             // Forks
                             if (forksCountElement) {
-                                forksCountElement.textContent = $forks !== null ? compact_number($forks) : '<?php echo esc_js($counts_empty_placeholder); ?>';
+                                forksCountElement.textContent = $forks !== null ? github_card_compact_number($forks) : '<?php echo esc_js($github_card_counts_empty_placeholder); ?>';
                                 const forksLabel = repoCard.querySelector('[data-repo-forks-label]');
                                 if (forksLabel) {
-                                    forksLabel.textContent = pluralize($forks, 'Fork', 's');
+                                    forksLabel.textContent = github_card_pluralize($forks, 'Fork', 's');
                                 }
                             }
 
@@ -213,8 +219,8 @@ if (github_card_load_with('js')) {
 <?php
 // --------------------------------------- START - Auto Scale -------------------------------------- 
 if (github_card_auto_scale()):
-$card_height = github_card_height();
-$card_width = github_card_width();
+$github_card_height = github_card_height();
+$github_card_width = github_card_width();
 ?>
     <style type="text/css">
         /* Scale */
@@ -225,20 +231,20 @@ $card_width = github_card_width();
             overflow: hidden;
 
             /* Set the max width to match original 1200px design */
-            max-width: <?php echo !empty($card_width) ? intval($card_width) : '1200'; ?>px;
+            max-width: <?php echo !empty($github_card_width) ? intval($github_card_width) : '1200'; ?>px;
         }
 
         /* SCALE the card based on available wrapper width */
         .github-card-wrapper .github-card {
             transform-origin: top left;
-            width: <?php echo !empty($card_width) ? intval($card_width) : '1200'; ?>px;
-            height: <?php echo !empty($card_height) ? intval($card_height) : '600'; ?>px;
+            width: <?php echo !empty($github_card_width) ? intval($github_card_width) : '1200'; ?>px;
+            height: <?php echo !empty($github_card_height) ? intval($github_card_height) : '600'; ?>px;
         }
 
         @media (max-width: 1200px) {
             .github-card-wrapper .github-card {
-                transform: scale(calc(min(1, 100vw / <?php echo !empty($card_width) ? intval($card_width) : '1200'; ?>px)));
-                width: <?php echo !empty($card_width) ? intval($card_width) : '1200'; ?>px;
+                transform: scale(calc(min(1, 100vw / <?php echo !empty($github_card_width) ? intval($github_card_width) : '1200'; ?>px)));
+                width: <?php echo !empty($github_card_width) ? intval($github_card_width) : '1200'; ?>px;
                 /* keep original width for scale calculation */
                 height: auto;
             }
@@ -247,8 +253,8 @@ $card_width = github_card_width();
 
     <script type="text/javascript">
         (function() {
-            const originalWidth = Number(<?php echo !empty($card_width) ? intval($card_width) : '1200'; ?>);
-            const originalHeight = Number(<?php echo !empty($card_height) ? intval($card_height) : '600'; ?>);
+            const originalWidth = Number(<?php echo !empty($github_card_width) ? intval($github_card_width) : '1200'; ?>);
+            const originalHeight = Number(<?php echo !empty($github_card_height) ? intval($github_card_height) : '600'; ?>);
 
             function scaleCard(wrapper) {
                 const card = wrapper.querySelector(".github-card");
@@ -319,33 +325,34 @@ $card_width = github_card_width();
 
 <?php
 // ------------------------------- START - Styles ------------------------------
-$spinner_color = github_card_preloader_spinner_color();
-$preloader_background_color = github_card_preloader_background_color();
-$backdrop_enabled = github_card_enable_preloader_blur();
-$blur_px = github_card_preloader_blur_px();
-$skeleton_primary_color = github_card_skeleton_primary_color();
-$skeleton_secondary_color = github_card_skeleton_secondary_color();
+$github_card_spinner_color = github_card_preloader_spinner_color();
+$github_card_preloader_background_color = github_card_preloader_background_color();
+$github_card_backdrop_enabled = github_card_enable_preloader_blur();
+$github_card_blur_px = github_card_preloader_blur_px();
+$github_card_skeleton_primary_color = github_card_skeleton_primary_color();
+$github_card_skeleton_secondary_color = github_card_skeleton_secondary_color();
 ?>
 <style type="text/css">
     /* Wrapper Preloder Loading Icon Color */
     .github-card-wrapper-preloader {
         <?php
-        if (!empty($spinner_color)) echo 'color: ' . $spinner_color . '!important;';
-        if (!empty($preloader_background_color)) echo 'background: ' . $preloader_background_color . '!important;';
-        ?>backdrop-filter: <?php echo $backdrop_enabled ? $blur_px : 'none!important;'; ?> -webkit-backdrop-filter: <?php echo $backdrop_enabled ? $blur_px : 'none!important;'; ?>
+        if (!empty($github_card_spinner_color)) echo 'color: ' . sanitize_hex_color($github_card_spinner_color) . '!important;';
+        if (!empty($github_card_preloader_background_color)) echo 'background: ' . sanitize_hex_color($github_card_preloader_background_color) . '!important;';
+        ?>
+        backdrop-filter: <?php echo $github_card_backdrop_enabled ? esc_attr($github_card_blur_px) : 'none!important;'; ?> -webkit-backdrop-filter: <?php echo $github_card_backdrop_enabled ? esc_attr($github_card_blur_px) : 'none!important;'; ?>
     }
 
     /* Counts Laoding Color */
     .github-card-stat i {
-        <?php if (!empty($spinner_color)): ?>color: <?php echo $spinner_color; ?> !important;
+        <?php if (!empty($github_card_spinner_color)): ?>color: <?php echo sanitize_hex_color($github_card_spinner_color); ?> !important;
         <?php endif; ?>
     }
 
 
 
     /* Skeleton Color */
-    <?php if (!empty($skeleton_primary_color) && !empty($skeleton_secondary_color)): ?>.github-card .github-card-skeleton::before {
-        background: linear-gradient(to right, <?php echo $skeleton_primary_color; ?> 8%, <?php echo $skeleton_secondary_color; ?> 18%, <?php echo $skeleton_primary_color; ?> 33%);
+    <?php if (!empty($github_card_skeleton_primary_color) && !empty($github_card_skeleton_secondary_color)): ?>.github-card .github-card-skeleton::before {
+        background: linear-gradient(to right, <?php echo sanitize_hex_color($github_card_skeleton_primary_color); ?> 8%, <?php echo sanitize_hex_color($github_card_skeleton_secondary_color); ?> 18%, <?php echo sanitize_hex_color($github_card_skeleton_primary_color); ?> 33%);
         background-size: 1000px 100%;
     }
 
@@ -353,7 +360,7 @@ $skeleton_secondary_color = github_card_skeleton_secondary_color();
 
     /* Footer Ribbon Color */
     <?php if (!empty(github_card_footer_ribbon_color())) { ?>.github-card .github-card-footer .language-ribbon {
-        background: <?php echo github_card_footer_ribbon_color(); ?>;
+        background: <?php echo sanitize_hex_color(github_card_footer_ribbon_color()); ?>;
     }
 
     <?php } ?>

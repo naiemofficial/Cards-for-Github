@@ -1,4 +1,11 @@
 <?php
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+
+
+
 // ------------------ START - Clear Cache -----------------
 function github_card_clear_cache_ajax(){
     if (!current_user_can('manage_options')) {
@@ -43,11 +50,11 @@ function github_card_save_settings_ajax(){
         wp_send_json_error('No data received');
     }
 
-    if ($_POST['action'] !== 'github_card_save_settings') {
+    if (sanitize_text_field(wp_unslash($_POST['action'] ?? '')) !== 'github_card_save_settings') {
         wp_send_json_error('Invalid action');
     }
 
-    parse_str($_POST['data'], $form_data);
+    parse_str(sanitize_text_field(wp_unslash($_POST['data'])), $form_data);
     foreach ($form_data as $key => $value) {
         if (strpos($key, 'github_card_') === 0) {
             update_option($key, sanitize_text_field($value));
@@ -76,7 +83,7 @@ function github_card_reset_settings_ajax(){
 
 
 
-    parse_str($_POST['data'], $form_data);
+    parse_str(sanitize_text_field(wp_unslash($_POST['data'])), $form_data);
 
     foreach ($form_data as $key => $value) {
         if (strpos($key, 'github_card_') === 0) {
@@ -101,17 +108,17 @@ add_action('wp_ajax_github_card_reset_settings', 'github_card_reset_settings_aja
 // AJAX handler for fetching GitHub stats
 function github_card_fetch_github_repo_data(){
     // Check nonce for security
-    if (!isset($_GET['nonce']) || !wp_verify_nonce($_GET['nonce'], 'github_card_repo_nonce')) {
+    if ( ! isset($_GET['nonce']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'github_card_repo_nonce' ) ) {
         wp_send_json_error(['message' => 'Invalid nonce']);
     }
 
-    $repo = sanitize_text_field($_GET['repo'] ?? '');
+    $repo = sanitize_text_field(wp_unslash($_GET['repo'] ?? ''));
     if (empty($repo)) {
         wp_send_json_error(['message' => 'No repo specified']);
     }
 
 
-    $repo_data = full_github_repo_data(['repo' => $repo]);
+    $repo_data = github_card_full_github_repo_data(['repo' => $repo]);
 
     if (is_wp_error($repo_data)) {
         wp_send_json_error(['message' => $repo_data]);

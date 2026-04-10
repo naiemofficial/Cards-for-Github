@@ -1,11 +1,13 @@
-<?php 
-
+<?php
+if (! defined('ABSPATH')) {
+    exit;
+}
 
 require_once plugin_dir_path(__FILE__) . '../api/linguist.php';
 
 
 
-function get_github_linguist_cached() {
+function github_card_get_linguist_cached() {
     $cache_key = 'github_card_linguist';
 
     // Check if cached
@@ -18,7 +20,7 @@ function get_github_linguist_cached() {
     }
 
     // Load from API
-    $linguist_colors = load_github_linguist_data();
+    $linguist_colors = github_card_load_linguist_data();
 
     // Don't cache if any error
     if ($linguist_colors instanceof WP_Error) return $linguist_colors;

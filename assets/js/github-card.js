@@ -1,10 +1,10 @@
 
-function get_or_null(obj, key) {
+function github_card_get_or_null(obj, key) {
     return obj && obj.hasOwnProperty(key) ? obj[key] : null;
 }
 
 
-function contributors_plus(number) {
+function github_card_contributors_plus(number) {
     if (typeof number !== 'number') return number;
 
     if (number >= 100) {
@@ -14,7 +14,7 @@ function contributors_plus(number) {
 }
 
 
-function compact_number(number) {
+function github_card_compact_number(number) {
     if (typeof number !== 'number') return number;
 
     const absNumber = Math.abs(number);
@@ -33,6 +33,6 @@ function compact_number(number) {
 
 
 
-function pluralize(count, singular, pluralSuffix) {
+function github_card_pluralize(count, singular, pluralSuffix) {
     return count <= 1 ? singular : singular + pluralSuffix;
 }

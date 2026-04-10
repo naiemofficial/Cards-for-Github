@@ -1,4 +1,8 @@
 <?php
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 // Default values for GitHub Card plugin
 return [
     'github_card_load_with'        => [

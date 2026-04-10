@@ -1,4 +1,7 @@
 <?php
+if (! defined('ABSPATH')) {
+    exit;
+}
 
 // Core Functions
 require_once plugin_dir_path(__FILE__) . '/functions.php';
